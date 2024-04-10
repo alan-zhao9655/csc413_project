@@ -135,6 +135,7 @@ if __name__ == "__main__":
     style_features = model(style_tensor)
 
     # Optimize result image
+    print("Training Start:")
     for iter in range(NUM_ITER):
         with tf.GradientTape() as tape:
             loss = compute_loss(model, generated_image, content_features, style_features)
