@@ -210,13 +210,13 @@ def style_transfer(args):
     style_model = ImageTransformNet().type(dtype)
     # style_model.load_state_dict(torch.load(args.model_path))
     
-	checkpoint = torch.load(args.model_path)
-	filtered_checkpoint = {k: v for k, v in checkpoint.items() if not (k.endswith('.running_mean') or k.endswith('.running_var'))}
-	style_model.load_state_dict(filtered_checkpoint)
+    checkpoint = torch.load(args.model_path)
+    filtered_checkpoint = {k: v for k, v in checkpoint.items() if not (k.endswith('.running_mean') or k.endswith('.running_var'))}
+    style_model.load_state_dict(filtered_checkpoint)
 
 	# process input image
-	stylized = style_model(content).cpu()
-	utils.save_image(args.output, stylized.data[0])
+    stylized = style_model(content).cpu()
+    utils.save_image(args.output, stylized.data[0])
 
 
 def main():
@@ -249,6 +249,9 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # example usage to perform style transferring on existing trained model:
+    # srun -p csc413 --gres gpu python3 /h/u14/c9/00/zhaoha36/Desktop/CSC413/csc413_project/StyleTransfer-master/style.py transfer --model-path /h/u14/c9/00/zhaoha36/Desktop/CSC413/csc413_project/StyleTransfer-master/models/mosaic.model --source /h/u14/c9/00/zhaoha36/Desktop/CSC413/csc413_project/StyleTransfer-master/content_imgs/maine.jpg --gpu 0 --output /h/u14/c9/00/zhaoha36/Desktop/CSC413/csc413_project/StyleTransfer-master/figure/output_image.png
+
 
 
 
