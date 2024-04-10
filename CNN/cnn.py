@@ -8,7 +8,7 @@ from tensorflow.keras.applications import vgg19
 # Generated image size
 RESIZE_HEIGHT = 607
 
-NUM_ITER = 3000
+NUM_ITER = 30
 
 # Weights of the different loss components
 CONTENT_WEIGHT = 8e-4 # 8e-4
@@ -114,13 +114,14 @@ def deprocess_image(tensor, result_height, result_width):
 
 if __name__ == "__main__":
     # Prepare content, stlye images
-    path = os.path.dirname(os.path.realpath(__file__)
-    content_image_path = path + '\dataset\paris.jpg'
-    style_image_path = path + '\dataset\starry_night.jpg'
+    path = os.path.dirname(os.path.realpath(__file__))
+    content_image_path = path + '/dataset/paris.jpg'
+    style_image_path = path + '/dataset/starry_night.jpg'
     result_height, result_width = get_result_image_size(content_image_path, RESIZE_HEIGHT)
     print("result resolution: (%d, %d)" % (result_height, result_width))
 
     # Preprocessing
+    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
     content_tensor = preprocess_image(content_image_path, result_height, result_width)
     style_tensor = preprocess_image(style_image_path, result_height, result_width)
     generated_image = tf.Variable(tf.random.uniform(style_tensor.shape, dtype=tf.dtypes.float32))
