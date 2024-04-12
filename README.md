@@ -1,7 +1,7 @@
 # CSC413 Final Project
 
 ## Project Goal
-The aim of this project is to harness the transformative power of image style transfer in the realm of digital art and design. By leveraging advanced Deep Learning (DL) algorithms and datasets such as Microsoft COCO and select Kaggle collections, we seek to innovate within this space. Our mission is to empirically evaluate a spectrum of DL algorithms for image style transfer, gauging their efficacy through both quantitative measures like style coherence and processing efficiency, and qualitative assessments concerning content integrity.
+The aim of this project is to harness the transformative power of image style transfer in the realm of digital art and design. By leveraging advanced Deep Learning (DL) algorithms and Microsoft COCO dataset, we seek to innovate within this space. Our mission is to empirically evaluate a spectrum of DL algorithms for image style transfer, gauging their efficacy through both quantitative measures like style coherence and processing efficiency, and qualitative assessments concerning content integrity.
 
 ## Prior Work
 1. **Image Style Transfer Using Convolutional Neural Networks**: Introduces a seminal approach for merging the content of a target image with the style of a source image through Convolutional Neural Networks (CNNs), utilizing content and style representation techniques.
