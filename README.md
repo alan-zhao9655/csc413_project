@@ -30,7 +30,7 @@ First of all, you'll have to download the [2014 Train/Val annotations](http://im
 #### Perceptual Loss Style Transfer (Based on the Second Paper)
 - **To Train a Model for a Specific Style Image:** 
   ```shell
-  srun -p csc413 --gres gpu pythons style.py train --style-image "path_to_style_image" --gpu "ID of the GPU"
+  srun -p csc413 --gres gpu python3 style.py train --style-image "path_to_style_image" --gpu "ID of the GPU"
 - **To Transfer:**
   ```shell
   srun -p csc413 --gres gpu python3 style.py transfer --model-path "path_to_model" --source "path_to_content_image" --gpu "ID of the GPU" --output "path_to_output_image"
