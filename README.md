@@ -15,7 +15,7 @@ The process involves training various models on image style transfer tasks and m
 
 ### Running the Experiments
 
-First of all, you'll have to download the [2014 Train/Val annotations](http://images.cocodataset.org/annotations/annotations_trainval2014.zip).
+First of all, you'll have to download the [2014 Train images](http://images.cocodataset.org/zips/train2014.zip).
 
 #### Base CNN (Inspired by the First Paper)
 - **On GPU (teach.cs):** `srun -p csc413 --gres gpu python3 cnn.py`
@@ -36,14 +36,19 @@ First of all, you'll have to download the [2014 Train/Val annotations](http://im
   srun -p csc413 --gres gpu python3 style.py transfer --model-path "path_to_model" --source "path_to_content_image" --gpu "ID of the GPU" --output "path_to_output_image"
 
 ## Results
-### Mosaic 
+### Style Images 
 <p align="center">
     <img src="perceptualLoss_style_transfer/style_imgs/mosaic.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/style_imgs/forest1024.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/style_imgs/picasso.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/style_imgs/starry_night.jpg" height="200px">
 </p>
 
-### Original Image:
+### Content Image:
 <p align="center">
     <img src="perceptualLoss_style_transfer/content_imgs/toronto.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/content_imgs/dan.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/content_imgs/maja.jpg" height="200px">
 </p>
 
 ### Generated Images:
@@ -54,10 +59,41 @@ CNN:
 
 Multimodal:
 <p align="center">
-    <img src="multimodal_style_transfer/generated/multimodal_mosaic_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_mosaic_dan_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_mosaic_toronto_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_mosaic_maja_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_forest1024_dan_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_forest1024_toronto_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_forest1024_maja_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_picasso_dan_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_picasso_toronto_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_picasso_maja_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_starry_night_dan_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_starry_night_toronto_1024.jpg" height="200px">
+    <img src="multimodal_style_transfer/generated/multimodal_starry_night_maja_1024.jpg" height="200px">
 </p>
 
 Perceptual Loss:
 <p align="center">
-    <img src="perceptualLoss_style_transfer/output/toronto_mosaic.png" height="200px">
+    <img src="perceptualLoss_style_transfer/output/mosaic_dan.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/output/mosaic_toronto.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/output/mosaic_maja.jpg" height="200px">
+</p>
+
+<p align='center'>
+    <img src="perceptualLoss_style_transfer/output/forest_dan.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/output/forest_toronto.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/output/forest_maja.jpg" height="200px">
+</p>
+
+<p align='center'>
+    <img src="perceptualLoss_style_transfer/output/picasso_dan.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/output/picasso_toronto.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/output/picasso_maja.jpg" height="200px">
+</p>
+
+<p align='center'>
+    <img src="perceptualLoss_style_transfer/output/starry_night_dan.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/output/starry_night_toronto.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/output/starry_night_maja.jpg" height="200px">
 </p>

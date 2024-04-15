@@ -1,31 +1,17 @@
 from collections import namedtuple
 import time
-import os
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
-from pycocotools.coco import COCO
-import requests
-from PIL import Image
-from io import BytesIO
-
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.autograd import Variable
-
-from PIL import Image
-
-import torchvision.transforms as transforms
-import torchvision.models as models
 from torch.utils.data import DataLoader
-from torchvision import datasets
+from torchvision import transforms, datasets
+
+from torch.autograd import Variable
+from torchvision.models import vgg19, VGG19_Weights
 
 from utils import *
 from style_subnet import *
 from enhance_subnet import *
 from refine_subnet import *
-from PIL import ImageFile
-from concurrent.futures import ThreadPoolExecutor
+from PIL import Image, ImageFile
+from simple_dataset import SimpleDataset
 
 """ Allow PIL to read truncated blocks when loading images """
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -34,71 +20,10 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 SEED = 1080
 torch.manual_seed(SEED)
 
-class COCOFromURLDataset(Dataset):
-    def __init__(self, annotation_file, transform=None, preload=False, cache_dir='./cache', num_preload=None):
-        """
-        Args:
-            annotation_file (string): Path to the json file with COCO annotations.
-            transform (callable, optional): Optional transform to be applied on a sample.
-            preload (bool): Whether to preload images.
-            cache_dir (string): Directory to cache preloaded images.
-            num_preload (int or None): Number of images to preload. If None, preload all.
-        """
-        self.coco = COCO(annotation_file)
-        self.transform = transform
-        self.ids = list(sorted(self.coco.imgs.keys()))
-        self.preload = preload
-        self.cache_dir = cache_dir
-        self.num_preload = num_preload or len(self.ids)
-        
-        # Shuffle ids for preloading
-        np.random.shuffle(self.ids)
-        
-        if preload:
-            self.preloaded_data = {}
-            self._preload_images()
-
-    def _download_image(self, img_id):
-        img_info = self.coco.loadImgs(img_id)[0]
-        img_url = img_info['coco_url']
-        response = requests.get(img_url)
-        img = Image.open(BytesIO(response.content)).convert('RGB')
-        return img, img_id
-
-    def _preload_images(self):
-        if not os.path.exists(self.cache_dir):
-            os.makedirs(self.cache_dir)
-        
-        # Use ThreadPoolExecutor to parallelize downloads
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            future_to_id = {executor.submit(self._download_image, img_id): img_id for img_id in self.ids[:self.num_preload]}
-            for future in future_to_id:
-                img, img_id = future.result()
-                cache_path = os.path.join(self.cache_dir, f"{img_id}.jpg")
-                img.save(cache_path)
-                self.preloaded_data[img_id] = cache_path
-
-    def __len__(self):
-        return len(self.ids)
-
-    def __getitem__(self, index):
-        img_id = self.ids[index]
-        
-        if self.preload:
-            img_path = self.preloaded_data.get(img_id)
-            img = Image.open(img_path).convert('RGB')
-        else:
-            img, _ = self._download_image(img_id)
-
-        if self.transform:
-            img = self.transform(img)
-
-        return img, img_id
-
 def train():
     IMAGE_SIZE = 256
     BATCH_SIZE = 1
-    STYLE_NAME = "mosaic"
+    STYLE_NAME = "picasso"
     LR = 1e-3
     NUM_EPOCHS = 1
     CONTENT_WEIGHTS = [1, 1, 1]
@@ -106,34 +31,34 @@ def train():
     #STYLE_WEIGHTS = [5e4, 8e4, 3e4] # Checkpoint two styles
     LAMBDAS = [1., 0.5, 0.25]
     REG = 1e-7
-    LOG_INTERVAL = 400
+    LOG_INTERVAL = 100
 
     """ Configure training with or without cuda """
 
     if torch.cuda.is_available():
         device = torch.device("cuda")
         torch.cuda.manual_seed(SEED)
-        torch.set_default_tensor_type('torch.cuda.FloatTensor')
-        kwargs = {'num_workers': 4, 'pin_memory': True}
+        torch.set_default_device(device)
     else:
         device = torch.device("cpu")
-        torch.set_default_tensor_type('torch.FloatTensor')
-        kwargs = {}
+        torch.set_default_device(device)
 
     """ Load coco dataset """
-    transform = transforms.Compose([transforms.Resize(IMAGE_SIZE),
+    script_dir = os.path.dirname(os.path.realpath('__file__'))
+    DATASET_PATH = script_dir + "/../train2014-2"
+    dataset_transform = transforms.Compose([transforms.Resize(IMAGE_SIZE),
                                     transforms.CenterCrop(IMAGE_SIZE),
                                     transforms.ToTensor(), tensor_normalizer()])
     # Initialize dataset
-    annotation_file = '/h/u14/c9/00/zhaoha36/Desktop/CSC413/csc413_project/annotations/instances_train2014.json'
-    train_dataset = COCOFromURLDataset(annotation_file=annotation_file, transform=transform)
+    train_dataset = SimpleDataset(DATASET_PATH, dataset_transform)
+    print(len(train_dataset))
 
     # Initialize DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=1)
 
     """ Load Style Image """
     style_img_256, style_img_512, style_img_1024 = style_loader(
-        "styles/" + STYLE_NAME + ".jpg", device, [256, 512, 1024])
+        "style_imgs/" + STYLE_NAME + ".jpg", device, [256, 512, 1024])
 
     """ Define Loss Network """
     StyleOutput = namedtuple("StyleOutput", ["relu1_1", "relu2_1", "relu3_1", "relu4_1"])
@@ -171,7 +96,7 @@ def train():
 
     """ Load and extract features from VGG16 """
     print("Loading VGG..")
-    vgg = models.vgg19(pretrained=True).features.to(device).eval()
+    vgg = vgg19(weights=VGG19_Weights.DEFAULT).features.to(device).eval()
     loss_network = LossNetwork(vgg).to(device).eval()
     del vgg
 
@@ -231,10 +156,13 @@ def train():
     refine_subnet.train()
     start = time.time()
     print("Start training on {}...".format(device))
+
+    # Initialize lists to store average losses for plotting
+    avg_content_losses, avg_style_losses, avg_reg_losses, avg_total_losses = [], [], [], []
     for epoch in range(NUM_EPOCHS):
         agg_content_loss, agg_style_loss, agg_reg_loss = 0., 0., 0.
         log_counter = 0
-        for i, (x, _) in enumerate(train_loader):
+        for i, x in enumerate(train_loader):
             # update learning rate every 2000 iterations
             if i % 2000 == 0 and i != 0:
                 LR = LR * 0.8
@@ -310,41 +238,53 @@ def train():
                             enhance_subnet_reg_loss.item() + \
                             refine_subnet_reg_loss.item()
             
-            
             # log training process
             if (i + 1) % LOG_INTERVAL == 0:
                 log_counter += 1
                 hlp = log_counter * LOG_INTERVAL
                 time_per_pass = (time.time() - start) / hlp
                 estimated_time_left = (time_per_pass * (max_iterations - i))/3600
+
+                avg_content_loss = agg_content_loss / LOG_INTERVAL
+                avg_style_loss = agg_style_loss / LOG_INTERVAL
+                avg_reg_loss = agg_reg_loss / LOG_INTERVAL
+                avg_total_loss = (agg_content_loss + agg_style_loss + agg_reg_loss) / LOG_INTERVAL
+
                 print("{} [{}/{}] time per pass: {:.2f}s  total time: {:.2f}s  estimated time left: {:.2f}h  content: {:.6f}  style: {:.6f}  reg: {:.6f}  total: {:.6f}".format(
                             time.ctime(), i+1, max_iterations,
-                            (time.time() - start) / hlp,
+                            (time.time() - start) / (i + 1),
                             time.time() - start,
                             estimated_time_left,
-                            agg_content_loss / LOG_INTERVAL,
-                            agg_style_loss / LOG_INTERVAL,
-                            agg_reg_loss / LOG_INTERVAL,
-                            (agg_content_loss + agg_style_loss + agg_reg_loss) / LOG_INTERVAL))
-                agg_content_loss, agg_style_loss, agg_reg_loss = 0., 0., 0.
-                imshow(x, title="input image")
-                imshow(generated_img_256, title="generated_img_256")
-                imshow(generated_img_512, title="generated_img_512")
-                imshow(generated_img_1024, title="generated_img_1024")
+                            avg_content_loss,
+                            avg_style_loss,
+                            avg_reg_loss,
+                            avg_total_loss))
+                
+                # Append average losses for plotting
+                avg_content_losses.append(avg_content_loss)
+                avg_style_losses.append(avg_style_loss)
+                avg_reg_losses.append(avg_reg_loss)
+                avg_total_losses.append(avg_total_loss)
+            
 
-            """
-            if (i + 1) % (10 * LOG_INTERVAL) == 0:
-                save_image(generated_img_256, title="log_data/256_iteration_{}_of_{}".format(i+1, max_iterations))
-                save_image(generated_img_512, title="log_data/512_iteration_{}_of_{}".format(i+1, max_iterations))
-                save_image(generated_img_1024, title="log_data/1024_iteration_{}_of_{}".format(i+1, max_iterations))
-                torch.save(style_subnet, 'log_data/trained_style_subnet_it_{}_of_{}.pt'.format(i+1, max_iterations))
-                torch.save(enhance_subnet, 'log_data/trained_enhance_subnet_it_{}_of_{}.pt'.format(i+1, max_iterations))
-                torch.save(refine_subnet, 'log_data/trained_refine_subnet_it_{}_of_{}.pt'.format(i+1, max_iterations))
-                print("Images and models saved in /log_one_data")
-            """
+                agg_content_loss, agg_style_loss, agg_reg_loss = 0., 0., 0.
 
             # Stop training after max iterations
             if (i + 1) == max_iterations: break
+
+    # Plotting the average loss graph at the end of an epoch
+    plt.figure(figsize=(10, 5))
+    plt.plot(avg_content_losses, label='Average Content Loss')
+    plt.plot(avg_style_losses, label='Average Style Loss')
+    plt.plot(avg_reg_losses, label='Average Regularization Loss')
+    plt.plot(avg_total_losses, label='Average Total Loss')
+    plt.xlabel('Number of Intervals')
+    plt.ylabel('Average Loss Value')
+    plt.title('Average Training Losses Over Intervals')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig('training_loss_plot.png')
+    plt.close()     
 
     """ Save model """
     torch.save(style_subnet, 'models/trained_style_subnet_' + STYLE_NAME + '.pt')

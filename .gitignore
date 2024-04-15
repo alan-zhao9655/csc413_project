@@ -1,0 +1,53 @@
+# Ignore directory 'train2014-2/'
+train2014-2/
+
+# General patterns for ignoring cache files
+*.cache
+*~
+
+# Temporary files often seen in development environments
+*.log
+*.tmp
+*.temp
+
+# Operating system generated files
+.DS_Store    # macOS desktop services store
+Thumbs.db    # Windows thumbnail cache
+ehthumbs.db  # Windows Explorer thumbnail cache
+Desktop.ini  # Windows folders customization
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Node modules
+node_modules/
+
+# Compiled Source #
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+*.log
+*.sql
+*.sqlite
+
+# Editor directories and files #
+.idea
+*.swp
+*.swo
+*.sublime-workspace

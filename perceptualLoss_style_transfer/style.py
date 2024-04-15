@@ -1,9 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
-from io import BytesIO
-from pycocotools.coco import COCO
-from PIL import Image
-import numpy as np
-import requests
+from matplotlib import pyplot as plt
 import torch
 import os
 import argparse
@@ -11,13 +6,16 @@ import time
 
 from torch.autograd import Variable
 from torch.optim import Adam
-from torch.utils.data import DataLoader, Dataset
-from torchvision import datasets
-from torchvision import transforms
+import torch.multiprocessing as mp
+from torch.utils.data import DataLoader
+from torchvision import transforms, datasets
 
 import utils
 from network import ImageTransformNet
 from vgg import Vgg16
+from simple_dataset import SimpleDataset
+from PIL import Image
+
 
 # Global Variables
 IMAGE_SIZE = 256
@@ -27,80 +25,23 @@ EPOCHS = 2
 STYLE_WEIGHT = 1e5
 CONTENT_WEIGHT = 1e0
 TV_WEIGHT = 1e-7
+SEED = 1080
+torch.manual_seed(SEED)
+LOG_INTERVAL = 100  # Adjust to control how often to log
 
-
-class COCOFromURLDataset(Dataset):
-    def __init__(self, annotation_file, transform=None, preload=False, cache_dir='./cache', num_preload=None):
-        """
-        Args:
-            annotation_file (string): Path to the json file with COCO annotations.
-            transform (callable, optional): Optional transform to be applied on a sample.
-            preload (bool): Whether to preload images.
-            cache_dir (string): Directory to cache preloaded images.
-            num_preload (int or None): Number of images to preload. If None, preload all.
-        """
-        self.coco = COCO(annotation_file)
-        self.transform = transform
-        self.ids = list(sorted(self.coco.imgs.keys()))
-        self.preload = preload
-        self.cache_dir = cache_dir
-        self.num_preload = num_preload or len(self.ids)
-        
-        # Shuffle ids for preloading
-        np.random.shuffle(self.ids)
-        
-        if preload:
-            self.preloaded_data = {}
-            self._preload_images()
-
-    def _download_image(self, img_id):
-        img_info = self.coco.loadImgs(img_id)[0]
-        img_url = img_info['coco_url']
-        response = requests.get(img_url)
-        img = Image.open(BytesIO(response.content)).convert('RGB')
-        return img, img_id
-
-    def _preload_images(self):
-        if not os.path.exists(self.cache_dir):
-            os.makedirs(self.cache_dir)
-        
-        # Use ThreadPoolExecutor to parallelize downloads
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            future_to_id = {executor.submit(self._download_image, img_id): img_id for img_id in self.ids[:self.num_preload]}
-            for future in future_to_id:
-                img, img_id = future.result()
-                cache_path = os.path.join(self.cache_dir, f"{img_id}.jpg")
-                img.save(cache_path)
-                self.preloaded_data[img_id] = cache_path
-
-    def __len__(self):
-        return len(self.ids)
-
-    def __getitem__(self, index):
-        img_id = self.ids[index]
-        
-        if self.preload:
-            img_path = self.preloaded_data.get(img_id)
-            img = Image.open(img_path).convert('RGB')
-        else:
-            img, _ = self._download_image(img_id)
-
-        if self.transform:
-            img = self.transform(img)
-
-        return img, img_id
-    
-    
 def train(args):          
-    # GPU enabling
-    device = torch.device('cpu')
-    if args.gpu is not None:
-        device = torch.device("cuda:{}".format(args.gpu))
+    if torch.cuda.is_available():
         use_cuda = True
-        # dtype = torch.cuda.FloatTensor
-        # torch.cuda.set_device(args.gpu)
-        # print("Current device: %d" %torch.cuda.current_device())
-        
+        device = torch.device("cuda")
+        torch.cuda.manual_seed(SEED)
+        torch.set_default_device(device)
+        print("Using GPU:", torch.cuda.get_device_name(torch.cuda.current_device()))
+    else:
+        use_cuda = False
+        device = torch.device("cpu")
+        torch.set_default_device(device)
+        raise SystemError("CUDA is not available. Check your installation.")
+            
     # visualization of training controlled by flag
     visualize = (args.visualize != None)
     if (visualize):
@@ -132,15 +73,17 @@ def train(args):
     # load vgg network
     vgg = Vgg16().to(device)
     """ Load coco dataset """
+    script_dir = os.path.dirname(os.path.realpath('__file__'))
+    DATASET = script_dir + "/../train2014-2"
     dataset_transform = transforms.Compose([transforms.Resize(IMAGE_SIZE),
                                     transforms.CenterCrop(IMAGE_SIZE),
                                     transforms.ToTensor(), utils.normalize_tensor_transform()])
     # Initialize dataset
-    annotation_file = '/h/u14/c9/00/zhaoha36/Desktop/CSC413/csc413_project/annotations/instances_train2014.json'
-    train_dataset = COCOFromURLDataset(annotation_file=annotation_file, transform=dataset_transform)
+    train_dataset = SimpleDataset(DATASET, dataset_transform)
+    print(len(train_dataset))
 
     # Initialize DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=1)
 
     # style image
     style_transform = transforms.Compose([
@@ -156,17 +99,23 @@ def train(args):
     style_features = vgg(style)
     style_gram = [utils.gram(fmap) for fmap in style_features]
 
-    for e in range(EPOCHS):
+    iteration_count = 0
 
-        # track values for...
+    # Initialization for plotting losses
+    iterations = []
+    avg_content_losses = []
+    avg_style_losses = []
+    avg_tv_losses = []
+    avg_total_losses = []
+
+    for e in range(EPOCHS):
+        agg_content_loss = agg_style_loss = agg_tv_loss = 0.0
+
         img_count = 0
-        aggregate_style_loss = 0.0
-        aggregate_content_loss = 0.0
-        aggregate_tv_loss = 0.0
 
         # train network
         image_transformer.train()
-        for batch_num, (x, label) in enumerate(train_loader):
+        for batch_num, x in enumerate(train_loader):
             img_batch_read = len(x)
             img_count += img_batch_read
 
@@ -187,20 +136,17 @@ def train(args):
             for j in range(4):
                 style_loss += loss_mse(y_hat_gram[j], style_gram[j][:img_batch_read])
             style_loss = STYLE_WEIGHT*style_loss
-            aggregate_style_loss += style_loss.item()
 
             # calculate content loss (h_relu_2_2)
             recon = y_c_features[1]      
             recon_hat = y_hat_features[1]
             content_loss = CONTENT_WEIGHT*loss_mse(recon_hat, recon)
-            aggregate_content_loss += content_loss.item()
 
             # calculate total variation regularization (anisotropic version)
             # https://www.wikiwand.com/en/Total_variation_denoising
             diff_i = torch.sum(torch.abs(y_hat[:, :, :, 1:] - y_hat[:, :, :, :-1]))
             diff_j = torch.sum(torch.abs(y_hat[:, :, 1:, :] - y_hat[:, :, :-1, :]))
             tv_loss = TV_WEIGHT*(diff_i + diff_j)
-            aggregate_tv_loss += tv_loss.item()
 
             # total loss
             total_loss = style_loss + content_loss + tv_loss
@@ -210,50 +156,50 @@ def train(args):
             optimizer.step()
 
             # print out status message
-            if ((batch_num + 1) % 100 == 0):
+            agg_content_loss += content_loss.item()
+            agg_style_loss += style_loss.item()
+            agg_tv_loss += tv_loss.item()
+
+            if (batch_num + 1) % LOG_INTERVAL == 0:
+                iteration_count += LOG_INTERVAL
+                iterations.append(iteration_count)
+                avg_content_losses.append(agg_content_loss / LOG_INTERVAL)
+                avg_style_losses.append(agg_style_loss / LOG_INTERVAL)
+                avg_tv_losses.append(agg_tv_loss / LOG_INTERVAL)
+                avg_total_losses.append((agg_content_loss + agg_style_loss + agg_tv_loss) / LOG_INTERVAL)
+
                 status = "{}  Epoch {}:  [{}/{}]  Batch:[{}]  agg_style: {:.6f}  agg_content: {:.6f}  agg_tv: {:.6f}  style: {:.6f}  content: {:.6f}  tv: {:.6f} ".format(
                                 time.ctime(), e + 1, img_count, len(train_dataset), batch_num+1,
-                                aggregate_style_loss/(batch_num+1.0), aggregate_content_loss/(batch_num+1.0), aggregate_tv_loss/(batch_num+1.0),
+                                agg_style_loss/(batch_num+1.0), agg_content_loss/(batch_num+1.0), agg_tv_loss/(batch_num+1.0),
                                 style_loss.item(), content_loss.item(), tv_loss.item()
                             )
                 print(status)
 
-            if ((batch_num + 1) % 1000 == 0) and (visualize):
-                image_transformer.eval()
+                agg_content_loss = agg_style_loss = agg_tv_loss = 0.0
 
-                if not os.path.exists("visualization"):
-                    os.makedirs("visualization")
-                if not os.path.exists("visualization/%s" %style_name):
-                    os.makedirs("visualization/%s" %style_name)
-
-                outputTestImage_amber = image_transformer(testImage_amber).cpu()
-                amber_path = "visualization/%s/amber_%d_%05d.jpg" %(style_name, e+1, batch_num+1)
-                utils.save_image(amber_path, outputTestImage_amber.item())
-
-                outputTestImage_dan = image_transformer(testImage_dan).cpu()
-                dan_path = "visualization/%s/dan_%d_%05d.jpg" %(style_name, e+1, batch_num+1)
-                utils.save_image(dan_path, outputTestImage_dan.item())
-
-                outputTestImage_maine = image_transformer(testImage_maine).cpu()
-                maine_path = "visualization/%s/maine_%d_%05d.jpg" %(style_name, e+1, batch_num+1)
-                utils.save_image(maine_path, outputTestImage_maine.item())
-
-                print("images saved")
-                image_transformer.train()
+    # Plot and save the graph
+    plt.figure(figsize=(10, 5))
+    plt.plot(iterations, avg_content_losses, label='Content Loss')
+    plt.plot(iterations, avg_style_losses, label='Style Loss')
+    plt.plot(iterations, avg_tv_losses, label='TV Loss')
+    plt.plot(iterations, avg_total_losses, label='Total Loss')
+    plt.xlabel('Iteration')
+    plt.ylabel('Loss')
+    plt.title('Loss per iteration')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig('loss_plot.png')
+    plt.close()
 
     # save model
     image_transformer.eval()
 
-    if use_cuda:
-        image_transformer.cpu()
+    image_transformer.to(device)
 
     if not os.path.exists("models"):
         os.makedirs("models")
     filename = "models/" + str(style_name) + "_" + str(time.ctime()).replace(' ', '_') + ".model"
     torch.save(image_transformer.state_dict(), filename)
-    
-    if use_cuda:
-        image_transformer.cuda()
 
 def style_transfer(args):
     # GPU enabling
@@ -266,7 +212,7 @@ def style_transfer(args):
     # content image
     img_transform_512 = transforms.Compose([
             transforms.Resize(512),                  # scale shortest side to image_size
-            transforms.CenterCrop(512),             # crop center image_size out
+            # transforms.CenterCrop(512),             # crop center image_size out
             transforms.ToTensor(),                  # turn image from [0-255] to [0-1]
             utils.normalize_tensor_transform()      # normalize with ImageNet values
     ])
@@ -287,6 +233,13 @@ def style_transfer(args):
 	# process input image
     stylized = style_model(content).cpu()
     utils.save_image(args.output, stylized.data[0])
+
+
+def get_image_dimensions(image_path):
+    with Image.open(image_path) as img:
+        width, height = img.size
+
+    return width, height
 
 
 def main():

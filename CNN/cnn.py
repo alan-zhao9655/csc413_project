@@ -1,4 +1,5 @@
 import os
+from matplotlib import pyplot as plt
 import numpy as np
 
 import tensorflow as tf
@@ -6,7 +7,7 @@ from tensorflow import keras
 from tensorflow.keras.applications import vgg19
 
 # Generated image size
-RESIZE_HEIGHT = 607
+RESIZE_HEIGHT = 512
 
 NUM_ITER = 3000
 
@@ -115,8 +116,8 @@ def deprocess_image(tensor, result_height, result_width):
 if __name__ == "__main__":
     # Prepare content, stlye images
     path = os.path.dirname(os.path.realpath(__file__))
-    content_image_path = path + '/dataset/toronto.jpg'
-    style_image_path = path + '/dataset/mosaic.jpg'
+    content_image_path = path + '/content_imgs/dan.jpg'
+    style_image_path = path + '/style_imgs/mosaic.jpg'
     result_height, result_width = get_result_image_size(content_image_path, RESIZE_HEIGHT)
     print("result resolution: (%d, %d)" % (result_height, result_width))
 
@@ -136,20 +137,55 @@ if __name__ == "__main__":
     content_features = model(content_tensor)
     style_features = model(style_tensor)
 
+    # Track losses for plotting
+    losses = []
+    avg_losses = []  # to store average losses every 100 iterations
+
     # Optimize result image
     print("Training Start:")
     for iter in range(NUM_ITER):
         with tf.GradientTape() as tape:
             loss = compute_loss(model, generated_image, content_features, style_features)
+            losses.append(loss.numpy())  # Save loss for plotting
 
         grads = tape.gradient(loss, generated_image)
 
-        print("iter: %4d, loss: %8.f" % (iter, loss))
+        # print("iter: %4d, loss: %8.f" % (iter, loss))
         optimizer.apply_gradients([(grads, generated_image)])
 
         if (iter + 1) % 100 == 0:
             name = "result/generated_at_iteration_%d.png" % (iter + 1)
             save_result(generated_image, result_height, result_width, name)
+            current_avg_loss = np.mean(losses[-100:])  # average over the last 100 iterations
+            avg_losses.append(current_avg_loss)
+            print(f"Iteration {iter + 1}: Average Loss = {current_avg_loss}")
 
     name = "result/result_%d_%f_%f.png" % (NUM_ITER, CONTENT_WEIGHT, STYLE_WEIGHT)
     save_result(generated_image, result_height, result_width, name)
+
+    # Plot and save the average loss graph
+    plt.figure(figsize=(10, 5))
+    plt.plot(np.arange(100, NUM_ITER+1, 100), avg_losses, label='Average Loss per 100 Iterations')
+    plt.title('Average Loss Progression')
+    plt.xlabel('Iteration')
+    plt.ylabel('Average Loss')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(f"avg_loss_plot_{NUM_ITER}_CW{CONTENT_WEIGHT}_SW{STYLE_WEIGHT}.png")
+    plt.close()
+
+    # Calculate final content and style losses
+    generated_tensor = preprocess_image(name, result_height, result_width)
+    final_generated_features = model(generated_tensor)
+    final_content_loss = compute_content_loss(content_features, final_generated_features)
+    final_style_loss = compute_style_loss(style_features, final_generated_features, generated_image.shape[1] * generated_image.shape[2])
+
+    # Print the final content and style loss for evaluation
+    print(f"Final Content Loss: {final_content_loss.numpy()}")
+    print(f"Final Style Loss: {final_style_loss.numpy()}")
+    print(result_height, result_width)
+
+    # Optionally save the loss values for documentation
+    with open("final_losses.txt", "w") as f:
+        f.write(f"Final Content Loss: {final_content_loss.numpy()}\n")
+        f.write(f"Final Style Loss: {final_style_loss.numpy()}\n")
