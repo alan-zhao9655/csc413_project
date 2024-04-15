@@ -46,9 +46,9 @@ First of all, you'll have to download the [2014 Train images](http://images.coco
 
 ### Content Image:
 <p align="center">
-    <img src="perceptualLoss_style_transfer/content_imgs/maja.jpg" height="200px">
-    <img src="perceptualLoss_style_transfer/content_imgs/toronto.jpg" height="200px">
     <img src="perceptualLoss_style_transfer/content_imgs/dan.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/content_imgs/toronto.jpg" height="200px">
+    <img src="perceptualLoss_style_transfer/content_imgs/maja.jpg" height="200px">
 </p>
 
 ### Generated Images:
