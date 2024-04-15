@@ -116,8 +116,8 @@ def deprocess_image(tensor, result_height, result_width):
 if __name__ == "__main__":
     # Prepare content, stlye images
     path = os.path.dirname(os.path.realpath(__file__))
-    content_image_path = path + '/content_imgs/dan.jpg'
-    style_image_path = path + '/style_imgs/mosaic.jpg'
+    content_image_path = path + '/content_imgs/maja.jpg'
+    style_image_path = path + '/style_imgs/forest1024.jpg'
     result_height, result_width = get_result_image_size(content_image_path, RESIZE_HEIGHT)
     print("result resolution: (%d, %d)" % (result_height, result_width))
 
@@ -180,12 +180,3 @@ if __name__ == "__main__":
     final_content_loss = compute_content_loss(content_features, final_generated_features)
     final_style_loss = compute_style_loss(style_features, final_generated_features, generated_image.shape[1] * generated_image.shape[2])
 
-    # Print the final content and style loss for evaluation
-    print(f"Final Content Loss: {final_content_loss.numpy()}")
-    print(f"Final Style Loss: {final_style_loss.numpy()}")
-    print(result_height, result_width)
-
-    # Optionally save the loss values for documentation
-    with open("final_losses.txt", "w") as f:
-        f.write(f"Final Content Loss: {final_content_loss.numpy()}\n")
-        f.write(f"Final Style Loss: {final_style_loss.numpy()}\n")

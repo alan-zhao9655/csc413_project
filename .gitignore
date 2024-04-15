@@ -1,5 +1,7 @@
 # Ignore directory 'train2014-2/'
 train2014-2/
+train2014-2.zip
+myenv
 
 # General patterns for ignoring cache files
 *.cache

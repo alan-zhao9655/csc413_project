@@ -1,0 +1,36 @@
+Content Image: dan.jpg, Style Image: forest1024.jpg, Generated Image: forest1024_dan.jpg
+Content Loss: 1625.64, Style Loss: 1372779.18
+
+Content Image: dan.jpg, Style Image: picasso.jpg, Generated Image: picasso_dan.jpg
+Content Loss: 980.47, Style Loss: 536806.30
+
+Content Image: dan.jpg, Style Image: starry_night.jpg, Generated Image: starry_night_dan.jpg
+Content Loss: 1866.13, Style Loss: 1572389.95
+
+Content Image: dan.jpg, Style Image: mosaic.jpg, Generated Image: mosaic_dan.jpg
+Content Loss: 1743.88, Style Loss: 2386206.81
+
+Content Image: toronto.jpg, Style Image: forest1024.jpg, Generated Image: forest1024_toronto.jpg
+Content Loss: 2140.02, Style Loss: 1336226.93
+
+Content Image: toronto.jpg, Style Image: picasso.jpg, Generated Image: picasso_toronto.jpg
+Content Loss: 1633.04, Style Loss: 506427.99
+
+Content Image: toronto.jpg, Style Image: starry_night.jpg, Generated Image: starry_night_toronto.jpg
+Content Loss: 2111.52, Style Loss: 1594665.30
+
+Content Image: toronto.jpg, Style Image: mosaic.jpg, Generated Image: mosaic_toronto.jpg
+Content Loss: 2325.49, Style Loss: 2358817.70
+
+Content Image: maja.jpg, Style Image: forest1024.jpg, Generated Image: forest1024_maja.jpg
+Content Loss: 1288.46, Style Loss: 1316477.19
+
+Content Image: maja.jpg, Style Image: picasso.jpg, Generated Image: picasso_maja.jpg
+Content Loss: 762.41, Style Loss: 516114.86
+
+Content Image: maja.jpg, Style Image: starry_night.jpg, Generated Image: starry_night_maja.jpg
+Content Loss: 1604.24, Style Loss: 1557293.91
+
+Content Image: maja.jpg, Style Image: mosaic.jpg, Generated Image: mosaic_maja.jpg
+Content Loss: 1569.66, Style Loss: 2385737.78
+

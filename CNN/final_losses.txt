@@ -1,2 +1,0 @@
-Final Content Loss: 82640240.0
-Final Style Loss: 1427101.5

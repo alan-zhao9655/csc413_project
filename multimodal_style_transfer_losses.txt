@@ -1,0 +1,36 @@
+Content Image: dan.jpg, Style Image: forest1024.jpg, Generated Image: multimodal_forest1024_dan_1024.jpg
+Content Loss: 3242.54, Style Loss: 1640278.85
+
+Content Image: dan.jpg, Style Image: picasso.jpg, Generated Image: multimodal_picasso_dan_1024.jpg
+Content Loss: 2086.96, Style Loss: 594819.21
+
+Content Image: dan.jpg, Style Image: starry_night.jpg, Generated Image: multimodal_starry_night_dan_1024.jpg
+Content Loss: 4000.88, Style Loss: 1865608.19
+
+Content Image: dan.jpg, Style Image: mosaic.jpg, Generated Image: multimodal_mosaic_dan_1024.jpg
+Content Loss: 4336.22, Style Loss: 2345782.07
+
+Content Image: toronto.jpg, Style Image: forest1024.jpg, Generated Image: multimodal_forest1024_toronto_1024.jpg
+Content Loss: 2587.92, Style Loss: 1561228.22
+
+Content Image: toronto.jpg, Style Image: picasso.jpg, Generated Image: multimodal_picasso_toronto_1024.jpg
+Content Loss: 1973.57, Style Loss: 587146.62
+
+Content Image: toronto.jpg, Style Image: starry_night.jpg, Generated Image: multimodal_starry_night_toronto_1024.jpg
+Content Loss: 2562.06, Style Loss: 1734984.00
+
+Content Image: toronto.jpg, Style Image: mosaic.jpg, Generated Image: multimodal_mosaic_toronto_1024.jpg
+Content Loss: 2848.16, Style Loss: 2286577.17
+
+Content Image: maja.jpg, Style Image: forest1024.jpg, Generated Image: multimodal_forest1024_maja_1024.jpg
+Content Loss: 2705.72, Style Loss: 1464760.11
+
+Content Image: maja.jpg, Style Image: picasso.jpg, Generated Image: multimodal_picasso_maja_1024.jpg
+Content Loss: 1822.53, Style Loss: 538267.51
+
+Content Image: maja.jpg, Style Image: starry_night.jpg, Generated Image: multimodal_starry_night_maja_1024.jpg
+Content Loss: 3114.53, Style Loss: 1802123.49
+
+Content Image: maja.jpg, Style Image: mosaic.jpg, Generated Image: multimodal_mosaic_maja_1024.jpg
+Content Loss: 2948.77, Style Loss: 2358428.95
+
