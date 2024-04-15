@@ -46,9 +46,9 @@ First of all, you'll have to download the [2014 Train images](http://images.coco
 
 ### Content Image:
 <p align="center">
+    <img src="perceptualLoss_style_transfer/content_imgs/maja.jpg" height="200px">
     <img src="perceptualLoss_style_transfer/content_imgs/toronto.jpg" height="200px">
     <img src="perceptualLoss_style_transfer/content_imgs/dan.jpg" height="200px">
-    <img src="perceptualLoss_style_transfer/content_imgs/maja.jpg" height="200px">
 </p>
 
 ### Generated Images:
@@ -62,12 +62,18 @@ Multimodal:
     <img src="multimodal_style_transfer/generated/multimodal_mosaic_dan_1024.jpg" height="200px">
     <img src="multimodal_style_transfer/generated/multimodal_mosaic_toronto_1024.jpg" height="200px">
     <img src="multimodal_style_transfer/generated/multimodal_mosaic_maja_1024.jpg" height="200px">
+</p>
+<p align="center">
     <img src="multimodal_style_transfer/generated/multimodal_forest1024_dan_1024.jpg" height="200px">
     <img src="multimodal_style_transfer/generated/multimodal_forest1024_toronto_1024.jpg" height="200px">
     <img src="multimodal_style_transfer/generated/multimodal_forest1024_maja_1024.jpg" height="200px">
+</p>
+<p align="center">
     <img src="multimodal_style_transfer/generated/multimodal_picasso_dan_1024.jpg" height="200px">
     <img src="multimodal_style_transfer/generated/multimodal_picasso_toronto_1024.jpg" height="200px">
     <img src="multimodal_style_transfer/generated/multimodal_picasso_maja_1024.jpg" height="200px">
+</p>
+<p align="center">
     <img src="multimodal_style_transfer/generated/multimodal_starry_night_dan_1024.jpg" height="200px">
     <img src="multimodal_style_transfer/generated/multimodal_starry_night_toronto_1024.jpg" height="200px">
     <img src="multimodal_style_transfer/generated/multimodal_starry_night_maja_1024.jpg" height="200px">
