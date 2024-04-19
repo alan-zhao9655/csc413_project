@@ -1,4 +1,8 @@
 # CSC413 Final Project
+The code related to three different image styler transfer models are built upon the following three source code:
+https://github.com/superb20/Image-Style-Transfer-Using-Convolutional-Neural-Networks
+https://github.com/dxyang/StyleTransfer
+https://github.com/FeliMe/multimodal_style_transfer
 
 ## Project Goal
 The aim of this project is to harness the transformative power of image style transfer in the realm of digital art and design. By leveraging advanced Deep Learning (DL) algorithms and Microsoft COCO dataset, we seek to innovate within this space. Our mission is to empirically evaluate a spectrum of DL algorithms for image style transfer, gauging their efficacy through both quantitative measures like style coherence and processing efficiency, and qualitative assessments concerning content integrity.
