@@ -159,22 +159,23 @@ Perceptual Loss:
 |  | ![Starry Night](multimodal_style_transfer/style_imgs/starry_night.jpg) | ![Gen](multimodal_style_transfer/output/multimodal_starry_night_maja_1024.jpg) | 19.76 | 14.47 | 0.256 | (11.76, 12.47, 9.72, inf) | (0.263, 0.250, 0.255, 0.0) |
 
 
-### Model: PerceptualLoss Style Transfer
 
+### Model: PerceptualLoss Style Transfer
 | Content Image | Style Image | Generated Image | BRISQUE: Style | BRISQUE: Generated | SSIM | PSNR | GMSD |
 |---------------|-------------|-----------------|----------------|--------------------|------|------|------|
 | ![Dan](perceptualLoss_style_transfer/content_imgs/dan.jpg) | ![Mosaic](perceptualLoss_style_transfer/style_imgs/mosaic.jpg) | ![Gen](perceptualLoss_style_transfer/output/mosaic_dan.jpg) | 12.55 | 8.61 | 0.368 | (10.21, 9.99, 9.42, inf) | (0.320, 0.331, 0.327, 0.0) |
-|  | ![Forest](perceptualLoss_style_transfer/style_imgs/forest1024.jpg) | ![Gen](perceptualLoss_style_transfer/output/forest1024_dan.jpg) | 0.0 | 13.52 | 0.397 | (11.77, 16.86, 11.32, inf) | (0.218, 0.254, 0.272, 0.0) |
-|  | ![Picasso](perceptualLoss_style_transfer/style_imgs/picasso.jpg) | ![Gen](perceptualLoss_style_transfer/output/picasso_dan.jpg) | 6.00 | 23.40 | 0.743 | (14.63, 12.81, 10.41, inf) | (0.115, 0.123, 0.138, 0.0) |
-|  | ![Starry Night](perceptualLoss_style_transfer/style_imgs/starry_night.jpg) | ![Gen](perceptualLoss_style_transfer/output/starry_night_dan.jpg) | 19.76 | 11.61 | 0.290 | (10.93, 14.43, 12.90, inf) | (0.273, 0.261, 0.261, 0.0) |
+|  | ![Forest](perceptualLoss_style_transfer/style_imgs/forest1024.jpg) | ![Gen](perceptualLoss_style_transfer/output/forest1024_dan.jpg) | 0.0 | 0.0 | 0.599 | (14.35, 20.11, 10.75, inf) | (0.146, 0.150, 0.154, 0.0) |
+|  | ![Picasso](perceptualLoss_style_transfer/style_imgs/picasso.jpg) | ![Gen](perceptualLoss_style_transfer/output/picasso_dan.jpg) | 6.00 | 13.90 | 0.862 | (17.84, 15.46, 12.21, inf) | (0.064, 0.066, 0.066, 0.0) |
+|  | ![Starry Night](perceptualLoss_style_transfer/style_imgs/starry_night.jpg) | ![Gen](perceptualLoss_style_transfer/output/starry_night_dan.jpg) | 19.76 | 16.17 | 0.389 | (11.63, 15.77, 15.78, inf) | (0.253, 0.252, 0.251, 0.0) |
 | ![Toronto](perceptualLoss_style_transfer/content_imgs/toronto.jpg) | ![Mosaic](perceptualLoss_style_transfer/style_imgs/mosaic.jpg) | ![Gen](perceptualLoss_style_transfer/output/mosaic_toronto.jpg) | 12.55 | 10.59 | 0.372 | (12.03, 13.99, 9.54, inf) | (0.317, 0.321, 0.315, 0.0) |
 |  | ![Forest](perceptualLoss_style_transfer/style_imgs/forest1024.jpg) | ![Gen](perceptualLoss_style_transfer/output/forest1024_toronto.jpg) | 0.0 | 1.97 | 0.350 | (6.51, 17.65, 10.23, inf) | (0.152, 0.145, 0.148, 0.0) |
-|  | ![Picasso](perceptualLoss_style_transfer/style_imgs/picasso.jpg) | ![Gen](perceptualLoss_style_transfer/output/picasso_toronto.jpg) | 6.00 | 27.78 | 0.472 | (7.88, 10.59, 13.74, inf) | (0.133, 0.129, 0.129, 0.0) |
+|  | ![Picasso](perceptualLoss_style_transfer/style_imgs/picasso.jpg) | ![Gen](perceptualLoss_style_transfer/output/picasso_toronto.jpg) | 6.00 | 27.78 | 0.471 | (7.88, 10.59, 13.74, inf) | (0.133, 0.129, 0.129, 0.0) |
 |  | ![Starry Night](perceptualLoss_style_transfer/style_imgs/starry_night.jpg) | ![Gen](perceptualLoss_style_transfer/output/starry_night_toronto.jpg) | 19.76 | 23.64 | 0.443 | (14.57, 15.87, 18.01, inf) | (0.233, 0.234, 0.229, 0.0) |
 | ![Maja](perceptualLoss_style_transfer/content_imgs/maja.jpg) | ![Mosaic](perceptualLoss_style_transfer/style_imgs/mosaic.jpg) | ![Gen](perceptualLoss_style_transfer/output/mosaic_maja.jpg) | 12.55 | 12.24 | 0.316 | (8.92, 9.93, 10.16, inf) | (0.325, 0.333, 0.333, 0.0) |
 |  | ![Forest](perceptualLoss_style_transfer/style_imgs/forest1024.jpg) | ![Gen](perceptualLoss_style_transfer/output/forest1024_maja.jpg) | 0.0 | 0.0 | 0.476 | (9.55, 17.25, 13.68, inf) | (0.155, 0.156, 0.169, 0.0) |
 |  | ![Picasso](perceptualLoss_style_transfer/style_imgs/picasso.jpg) | ![Gen](perceptualLoss_style_transfer/output/picasso_maja.jpg) | 6.00 | 21.16 | 0.652 | (10.74, 9.58, 7.80, inf) | (0.084, 0.080, 0.083, 0.0) |
 |  | ![Starry Night](perceptualLoss_style_transfer/style_imgs/starry_night.jpg) | ![Gen](perceptualLoss_style_transfer/output/starry_night_maja.jpg) | 19.76 | 16.05 | 0.391 | (12.92, 13.89, 10.92, inf) | (0.237, 0.240, 0.243, 0.0) |
+
 
 
 ## Understanding Image Quality Metrics
